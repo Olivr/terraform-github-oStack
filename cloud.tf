@@ -1,23 +1,22 @@
 # ---------------------------------------------------------------------------------------------------------------------
-# Computations
+# Main variables
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
-  cluster_deploy_keys = { for cluster in keys(local.clusters_to_create) :
-    (cluster) => {
-      title    = cluster
-      ssh_key  = null
-      readonly = true
-    }
-  }
+  clusters_k8s = merge(
+    module.clusters_k8s_linode,
+    module.clusters_k8s_digitalocean
+  )
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Resources
+# Multi-providers
 # ---------------------------------------------------------------------------------------------------------------------
-# Generate "deploy key" to be used by Flux
-resource "tls_private_key" "cluster_keys" {
-  for_each = toset(keys(local.clusters_to_create))
+locals {
+  clusters_k8s_linode = { for id, cluster in local.environments_clusters_create :
+    id => cluster if cluster.provider == "linode"
+  }
 
-  algorithm = "RSA"
-  rsa_bits  = 4096
+  clusters_k8s_digitalocean = { for id, cluster in local.environments_clusters_create :
+    id => cluster if cluster.provider == "digitalocean"
+  }
 }

@@ -1,14 +1,13 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # Resources
 # ---------------------------------------------------------------------------------------------------------------------
-module "clusters_k8s_linode" {
-  source = "Olivr/k8s-cluster/linode"
+module "clusters_k8s_digitalocean" {
+  source = "Olivr/k8s-cluster/digitalocean"
 
-  enable   = local.cloud_provider == "linode"
-  for_each = local.clusters_to_create
+  for_each = local.clusters_k8s_digitalocean
 
   kube_version = each.value.kube_version
-  name         = each.key
+  name         = each.value.name
   nodes        = each.value.nodes
   region       = each.value.region
   tags         = each.value.tags
